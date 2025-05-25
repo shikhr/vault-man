@@ -26,7 +26,7 @@ function MarkdownRenderer({ fileContent }) {
   }, [fileContent]);
 
   return (
-    <div className="grow-1 p-6 px-20 overflow-y-auto bg-[#1e1e1e] text-[#dadada] prose prose-invert max-w-none prose-sm sm:prose-base scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+    <div className="grow max-w-none h-full p-6 px-30 overflow-y-auto bg-[#1e1e1e] text-[#dadada] prose prose-invert prose-sm sm:prose-base scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
       {markdown ? (
         <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdown}</ReactMarkdown>
       ) : (
