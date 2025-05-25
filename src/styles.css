@@ -15,6 +15,31 @@
   --font-monospace: 'Source Code Pro', 'Courier New', Courier, monospace;
 }
 
+.rc-tabs-nav-list {
+  @apply bg-transparent!;
+}
+
+.rc-tabs-tab {
+  @apply bg-transparent!;
+}
+.rc-tabs-tab-focus {
+  @apply outline-0!;
+}
+.rc-tabs-ink-bar {
+  @apply hidden!;
+}
+
+.rc-tabs-content-holder,
+.rc-tabs-content,
+.rc-tabs-tabpane {
+  @apply w-full!;
+  @apply h-full!;
+}
+
+.rc-tabs-nav-more {
+  @apply hidden!;
+}
+
 .core-markdown {
   h6 {
     @apply text-lg font-bold;

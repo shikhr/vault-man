@@ -5,11 +5,13 @@ import ViewerPage from './components/ViewerPage';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('upload'); // 'upload' or 'viewer'
-  const [files, setFiles] = useState(null);
-  const [allFilesData, setAllFilesData] = useState({});
-  const [selectedFileContent, setSelectedFileContent] = useState('');
-  const [selectedFileName, setSelectedFileName] = useState(''); // Add state for selected file name
-  const [selectedFileFullPath, setSelectedFileFullPath] = useState(''); // State for the full path of the selected file
+  const [files, setFiles] = useState(null); // This is the file tree structure
+  const [allFilesData, setAllFilesData] = useState({}); // Flat map of all file data by path
+
+  // New state for tab management
+  const [openFiles, setOpenFiles] = useState([]); // Array of file objects { path, name, content, blob }
+  const [activeTabKey, setActiveTabKey] = useState(null); // Path of the active file
+
   const [error, setError] = useState('');
 
   const processFile = async (file) => {
@@ -57,7 +59,8 @@ function App() {
         // Reset state before processing new file
         setFiles(null);
         setAllFilesData({});
-        setSelectedFileContent('');
+        setOpenFiles([]); // Reset open files
+        setActiveTabKey(null); // Reset active tab
 
         const zip = await JSZip.loadAsync(uploadedFile);
         const extractedFiles = [];
@@ -108,7 +111,8 @@ function App() {
       // Reset state before processing new folder
       setFiles(null);
       setAllFilesData({});
-      setSelectedFileContent('');
+      setOpenFiles([]); // Reset open files
+      setActiveTabKey(null); // Reset active tab
 
       const processedFilesList = [];
       const fileDataMap = {};
@@ -136,6 +140,8 @@ function App() {
     } catch (e) {
       console.error('Error processing folder:', e);
       setError('Error processing folder.');
+      setOpenFiles([]); // Clear on error
+      setActiveTabKey(null); // Clear on error
       setCurrentPage('upload'); // Stay on upload page if error
     }
   };
@@ -143,27 +149,67 @@ function App() {
   const handleFileSelect = useCallback(
     (filePath) => {
       const fileData = allFilesData[filePath];
-      if (fileData && fileData.content) {
-        setSelectedFileContent(fileData.content);
-        setSelectedFileName(fileData.name); // Set the selected file name
-        setSelectedFileFullPath(filePath); // Set the full path
-      } else if (fileData && fileData.blob) {
-        setSelectedFileContent(
-          `Binary file: ${fileData.name}. Preview not available for this type directly in markdown view.`
-        );
-        setSelectedFileName(fileData.name); // Also set name for binary files
-        setSelectedFileFullPath(filePath); // Set the full path for binary files too
+      if (fileData) {
+        // Check if the file is already open
+        const isOpen = openFiles.some((f) => f.path === filePath);
+        if (!isOpen) {
+          // Add to open files if it's a viewable file (has content or is a known blob type)
+          if (fileData.content || fileData.blob) {
+            setOpenFiles((prevOpenFiles) => [...prevOpenFiles, fileData]);
+          } else {
+            // Handle case where file is not viewable (e.g. unknown binary)
+            // Optionally, you could add it to openFiles and let TabView show a message
+            console.warn(
+              `File ${filePath} is not viewable and won't be opened in a tab.`
+            );
+            // If you still want to "select" it without opening, you might need other state.
+            // For now, we just don't open it.
+            return;
+          }
+        }
+        // Set as active tab
+        setActiveTabKey(filePath);
       }
     },
-    [allFilesData]
+    [allFilesData, openFiles]
   );
+
+  const handleTabChange = (newKey) => {
+    setActiveTabKey(newKey);
+  };
+
+  const handleTabClose = (targetKey) => {
+    setOpenFiles((prevOpenFiles) => {
+      const newOpenFiles = prevOpenFiles.filter((f) => f.path !== targetKey);
+      if (activeTabKey === targetKey) {
+        if (newOpenFiles.length > 0) {
+          // Activate the last tab in the list, or the first if you prefer
+          setActiveTabKey(newOpenFiles[newOpenFiles.length - 1].path);
+        } else {
+          setActiveTabKey(null); // No tabs left
+        }
+      }
+      return newOpenFiles;
+    });
+  };
+
+  // Placeholder for drag-end, rc-tabs might handle this internally or need react-dnd
+  const handleTabDragEnd = (newOrder) => {
+    // This would be called by rc-tabs if it supports a callback for drag end.
+    // The `newOrder` would likely be an array of keys in the new order.
+    // You would then reorder `openFiles` based on this.
+    // For now, this is a conceptual placeholder.
+    // Example: setOpenFiles(newOrder.map(key => openFiles.find(f => f.path === key)));
+    console.log('Tab drag end, new order:', newOrder);
+    // If rc-tabs provides the full items in new order:
+    // setOpenFiles(newOrder);
+  };
 
   const handleBackToUpload = () => {
     setFiles(null);
     setAllFilesData({});
-    setSelectedFileContent('');
-    setSelectedFileName(''); // Reset selected file name
-    setSelectedFileFullPath(''); // Reset full path
+    setOpenFiles([]); // Reset open files
+    setActiveTabKey(null); // Reset active tab
     setError('');
     setCurrentPage('upload');
   };
@@ -180,12 +226,14 @@ function App() {
 
   return (
     <ViewerPage
-      files={files}
-      allFilesData={allFilesData}
-      selectedFileContent={selectedFileContent}
-      selectedFileName={selectedFileName} // Pass selectedFileName to ViewerPage
-      selectedFileFullPath={selectedFileFullPath} // Pass full path
+      files={files} // File tree structure
+      allFilesData={allFilesData} // All file data for content lookup
+      openFiles={openFiles} // Files currently open in tabs
+      activeTabKey={activeTabKey} // Key of the active tab
       onFileSelect={handleFileSelect}
+      onTabChange={handleTabChange}
+      onTabClose={handleTabClose}
+      onTabDragEnd={handleTabDragEnd} // Pass drag end handler
       onBackToUpload={handleBackToUpload}
     />
   );
