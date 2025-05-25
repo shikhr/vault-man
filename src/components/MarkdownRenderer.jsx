@@ -140,7 +140,7 @@ function MarkdownRenderer({ fileContent, fileName, fileFullPath, files }) {
         <h1 className="text-2xl font-bold mb-4 text-gray-100">{fileName}</h1>
       )}
       {currentMarkdown ? (
-        <div className="font-inter">
+        <div className="font-inter core-markdown">
           <ReactMarkdown
             remarkPlugins={[[remarkGfm, { singleTilde: false }]]}
             urlTransform={transformImageUri}
@@ -157,7 +157,7 @@ function MarkdownRenderer({ fileContent, fileName, fileFullPath, files }) {
                   {children}
                 </pre>
               ),
-              code({ node, inline, className, children, ...props }) {
+              code({ inline, className, children, ...props }) {
                 const match = /language-(\w+)/.exec(className || '');
                 if (!inline && match) {
                   // This is a fenced code block
@@ -173,7 +173,6 @@ function MarkdownRenderer({ fileContent, fileName, fileFullPath, files }) {
                     </SyntaxHighlighter>
                   );
                 }
-                // This handles inline code
                 return (
                   <code className={className} {...props}>
                     {children}

@@ -9,7 +9,7 @@ function ViewerPage({
   selectedFileName, // Add selectedFileName prop
   selectedFileFullPath, // Add selectedFileFullPath prop
   onFileSelect,
-  onBackToUpload,
+  // onBackToUpload,
 }) {
   return (
     <div className="flex flex-col h-screen bg-gray-900 text-gray-100">
