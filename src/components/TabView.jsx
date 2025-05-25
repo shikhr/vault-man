@@ -54,7 +54,7 @@ function TabView({
       </span>
     ),
     children: (
-      <div className="h-full overflow-y-auto bg-[#1e1e1e]">
+      <div className="h-screen overflow-y-auto bg-[#1e1e1e]">
         <MarkdownRenderer
           fileContent={file.content}
           fileName={file.name}

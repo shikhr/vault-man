@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { tomorrow as dark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
+import 'katex/dist/katex.min.css'; // `rehype-katex` does not import the CSS
 
 function MarkdownRenderer({ fileContent, fileName, fileFullPath, files }) {
   const [currentMarkdown, setCurrentMarkdown] = useState('');
@@ -140,9 +144,10 @@ function MarkdownRenderer({ fileContent, fileName, fileFullPath, files }) {
         <h1 className="text-2xl font-bold mb-4 text-gray-100">{fileName}</h1>
       )}
       {currentMarkdown ? (
-        <div className="font-inter core-markdown">
+        <div className="font-inter core-markdown pb-20 ">
           <ReactMarkdown
-            remarkPlugins={[[remarkGfm, { singleTilde: false }]]}
+            remarkPlugins={[[remarkGfm, { singleTilde: false }], [remarkMath]]}
+            rehypePlugins={[rehypeKatex]}
             urlTransform={transformImageUri}
             components={{
               pre: ({ children, ...props }) => (
