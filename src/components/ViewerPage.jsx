@@ -6,6 +6,8 @@ function ViewerPage({
   files,
   allFilesData,
   selectedFileContent,
+  selectedFileName, // Add selectedFileName prop
+  selectedFileFullPath, // Add selectedFileFullPath prop
   onFileSelect,
   onBackToUpload,
 }) {
@@ -16,8 +18,9 @@ function ViewerPage({
         <FileTree files={files} onFileSelect={onFileSelect} />
         <MarkdownRenderer
           fileContent={selectedFileContent}
+          fileName={selectedFileName} // Pass selectedFileName to MarkdownRenderer
+          fileFullPath={selectedFileFullPath} // Pass full path to MarkdownRenderer
           files={allFilesData}
-          onLinkClick={onFileSelect}
         />
       </main>
     </div>

@@ -23,11 +23,26 @@ function FileTree({ files, onFileSelect }) {
   console.log('FileTree files:', files); // Debugging line to check files structure
 
   const renderTree = (nodes, currentPath = '', level = 0) => {
+    const entries = Object.entries(nodes);
+
+    // Filter out hidden files and folders
+    const visibleEntries = entries.filter(([name]) => !name.startsWith('.'));
+
+    // Sort entries: folders first, then files, then alphabetically
+    visibleEntries.sort(([nameA, nodeA], [nameB, nodeB]) => {
+      if (nodeA.type === 'folder' && nodeB.type !== 'folder') {
+        return -1;
+      }
+      if (nodeA.type !== 'folder' && nodeB.type === 'folder') {
+        return 1;
+      }
+      return nameA.localeCompare(nameB);
+    });
+
     return (
       <ul className="">
-        {' '}
         {/* Indentation based on level */}
-        {Object.entries(nodes).map(([name, node]) => {
+        {visibleEntries.map(([name, node]) => {
           const nodePath = currentPath ? `${currentPath}/${name}` : name;
           if (node.type === 'folder') {
             const isExpanded = expandedFolders[nodePath];

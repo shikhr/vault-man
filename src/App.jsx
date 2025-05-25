@@ -8,6 +8,8 @@ function App() {
   const [files, setFiles] = useState(null);
   const [allFilesData, setAllFilesData] = useState({});
   const [selectedFileContent, setSelectedFileContent] = useState('');
+  const [selectedFileName, setSelectedFileName] = useState(''); // Add state for selected file name
+  const [selectedFileFullPath, setSelectedFileFullPath] = useState(''); // State for the full path of the selected file
   const [error, setError] = useState('');
 
   const processFile = async (file) => {
@@ -143,10 +145,14 @@ function App() {
       const fileData = allFilesData[filePath];
       if (fileData && fileData.content) {
         setSelectedFileContent(fileData.content);
+        setSelectedFileName(fileData.name); // Set the selected file name
+        setSelectedFileFullPath(filePath); // Set the full path
       } else if (fileData && fileData.blob) {
         setSelectedFileContent(
           `Binary file: ${fileData.name}. Preview not available for this type directly in markdown view.`
         );
+        setSelectedFileName(fileData.name); // Also set name for binary files
+        setSelectedFileFullPath(filePath); // Set the full path for binary files too
       }
     },
     [allFilesData]
@@ -156,6 +162,8 @@ function App() {
     setFiles(null);
     setAllFilesData({});
     setSelectedFileContent('');
+    setSelectedFileName(''); // Reset selected file name
+    setSelectedFileFullPath(''); // Reset full path
     setError('');
     setCurrentPage('upload');
   };
@@ -175,6 +183,8 @@ function App() {
       files={files}
       allFilesData={allFilesData}
       selectedFileContent={selectedFileContent}
+      selectedFileName={selectedFileName} // Pass selectedFileName to ViewerPage
+      selectedFileFullPath={selectedFileFullPath} // Pass full path
       onFileSelect={handleFileSelect}
       onBackToUpload={handleBackToUpload}
     />
